@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import '../models/mcq.dart';
 import '../services/ai_service.dart';
+import '../models/word_entry.dart';
+import 'word_list_page.dart';
+import '../data/english_dict.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
@@ -17,11 +21,20 @@ class _QuizPageState extends State<QuizPage> {
   String? error;
 
   final subjects = const [
+    'English',
     'Pure Chemistry',
     'Pure Physics',
     'Combine Chemistry',
     'Combine Biology',
   ];
+
+  bool englishMode = true; // true: 题干英文→选中文；false: 题干中文→选英文
+  // English 出题模式（四种文案）
+  static const String kModeWordToCn = 'Pick Chinese meaning';
+  static const String kModeWordToEn = 'Pick English meaning';
+  static const String kModeCnToWord = 'Match Chinese meaning';
+  static const String kModeEnToWord = 'Match English meaning';
+  String englishQuestionMode = kModeWordToCn;
 
   Future<void> _loadNext() async {
     if (selectedSubject == null) return;
@@ -31,7 +44,12 @@ class _QuizPageState extends State<QuizPage> {
       selectedIndex = null;
     });
     try {
-      final mcq = await AiService.generateSingleMcq(selectedSubject!);
+      Mcq mcq;
+      if (selectedSubject == 'English') {
+        mcq = await _generateEnglishMcq();
+      } else {
+        mcq = await AiService.generateSingleMcq(selectedSubject!);
+      }
       setState(() {
         current = mcq;
       });
@@ -44,6 +62,79 @@ class _QuizPageState extends State<QuizPage> {
         loading = false;
       });
     }
+  }
+
+  Future<Mcq> _generateEnglishMcq() async {
+    final words = englishWordDict;
+    if (words.isEmpty) {
+      throw Exception('No words found in resources.');
+    }
+    final rnd = Random();
+    final answer = words[rnd.nextInt(words.length)];
+
+    // 生成干扰项
+    final pool = List<WordEntry>.from(words)..removeWhere((w) => w.word == answer.word && w.chineseMeaning == answer.chineseMeaning);
+    pool.shuffle(rnd);
+    final distractors = pool.take(3).toList();
+
+    late final String question;
+    final options = <String>[];
+    int correctIndex;
+
+    switch (englishQuestionMode) {
+      case kModeWordToCn:
+        question = '$kModeWordToCn: ${answer.word}';
+        options.add(answer.chineseMeaning);
+        options.addAll(distractors.map((e) => e.chineseMeaning));
+        break;
+      case kModeWordToEn:
+        question = '$kModeWordToEn: ${answer.word}';
+        options.add(answer.englishMeaning);
+        options.addAll(distractors.map((e) => e.englishMeaning));
+        break;
+      case kModeCnToWord:
+        question = '$kModeCnToWord\n${answer.chineseMeaning}';
+        options.add(answer.word);
+        options.addAll(distractors.map((e) => e.word));
+        break;
+      case kModeEnToWord:
+        question = '$kModeEnToWord\n${answer.englishMeaning}';
+        options.add(answer.word);
+        options.addAll(distractors.map((e) => e.word));
+        break;
+      default:
+        question = '$kModeWordToCn: ${answer.word}';
+        options.add(answer.chineseMeaning);
+        options.addAll(distractors.map((e) => e.chineseMeaning));
+        break;
+    }
+
+    // 打乱选项并记录正确下标
+    final indexed = options.asMap().entries.toList();
+    indexed.shuffle(rnd);
+    final shuffled = indexed.map((e) => e.value).toList();
+    final originalCorrect = 0; // 我们把正确答案放在 options[0]
+    correctIndex = shuffled.indexOf(options[originalCorrect]);
+
+    return Mcq(
+      question: question,
+      options: shuffled,
+      correctIndex: correctIndex,
+      explanation: () {
+        switch (englishQuestionMode) {
+          case kModeWordToCn:
+            return '词汇对应：${answer.word} → ${answer.chineseMeaning}';
+          case kModeWordToEn:
+            return '词汇对应：${answer.word} → ${answer.englishMeaning}';
+          case kModeCnToWord:
+            return '词汇对应：${answer.chineseMeaning} → ${answer.word}';
+          case kModeEnToWord:
+            return '词汇对应：${answer.englishMeaning} → ${answer.word}';
+          default:
+            return '词汇对应：${answer.word}';
+        }
+      }(),
+    );
   }
 
   void _onSelect(int index) {
@@ -99,28 +190,71 @@ class _QuizPageState extends State<QuizPage> {
     );
   }
 
+  Future<void> _openWordList() async {
+    final words = englishWordDict;
+    if (!mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => WordListPage(words: words)),
+    );
+  }
+
+  Widget _englishToolbar() {
+    const modes = [
+      kModeWordToCn,
+      kModeWordToEn,
+      kModeCnToWord,
+      kModeEnToWord,
+    ];
+    return Row(
+      children: [
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            value: englishQuestionMode,
+            items: modes.map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
+            onChanged: (v) {
+              if (v == null) return;
+              setState(() {
+                englishQuestionMode = v;
+              });
+            },
+            decoration: const InputDecoration(labelText: 'English question mode'),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('MCQ Practice')),
+      appBar: AppBar(title: const Text('Pantheon Learn')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(labelText: 'Select Subject'),
-              value: selectedSubject,
-              items: subjects
-                  .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                  .toList(),
-              onChanged: (v) {
-                setState(() {
-                  selectedSubject = v;
-                });
-              },
+            Row(
+              children: [
+                Image.asset('images/LOGO.png', height: 40),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Select Subject'),
+                    value: selectedSubject,
+                    items: subjects
+                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                        .toList(),
+                    onChanged: (v) {
+                      setState(() {
+                        selectedSubject = v;
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
+            if (selectedSubject == 'English') _englishToolbar(),
             Row(
               children: [
                 FilledButton.icon(
@@ -136,6 +270,13 @@ class _QuizPageState extends State<QuizPage> {
                   icon: const Icon(Icons.skip_next),
                   label: const Text('Skip'),
                 ),
+                const SizedBox(width: 12),
+                if (selectedSubject == 'English')
+                  OutlinedButton.icon(
+                    onPressed: loading ? null : _openWordList,
+                    icon: const Icon(Icons.menu_book),
+                    label: const Text('Word List'),
+                  ),
               ],
             ),
             const SizedBox(height: 16),
