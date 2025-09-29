@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'quiz_page.dart';
 import '../services/theme_service.dart';
+import 'history_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -17,6 +18,32 @@ class SettingsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text('History', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            Material(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const HistoryPage()),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).dividerColor),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const ListTile(
+                    leading: Icon(Icons.history),
+                    title: Text('View history'),
+                    trailing: Icon(Icons.chevron_right),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             const Text('Appearance', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             ValueListenableBuilder<ThemeMode>(

@@ -77,7 +77,9 @@ class _QuizPageState extends State<QuizPage> {
     final answer = words[rnd.nextInt(words.length)];
 
     // 生成干扰项
-    final pool = List<WordEntry>.from(words)..removeWhere((w) => w.word == answer.word && w.chineseMeaning == answer.chineseMeaning);
+    final pool = List<WordEntry>.from(words)..removeWhere(
+      (w) => w.word == answer.word && w.chineseMeaning == answer.chineseMeaning,
+    );
     pool.shuffle(rnd);
     final distractors = pool.take(3).toList();
 
@@ -179,7 +181,10 @@ class _QuizPageState extends State<QuizPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Correct Answer：$correctLetter', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                'Correct Answer：$correctLetter',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 12),
               Text(current!.explanation),
               const SizedBox(height: 16),
@@ -195,7 +200,7 @@ class _QuizPageState extends State<QuizPage> {
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         );
@@ -206,31 +211,31 @@ class _QuizPageState extends State<QuizPage> {
   Future<void> _openWordList() async {
     final words = englishWordDict;
     if (!mounted) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => WordListPage(words: words)),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => WordListPage(words: words)));
   }
 
   Widget _englishToolbar() {
-    const modes = [
-      kModeWordToCn,
-      kModeWordToEn,
-      kModeCnToWord,
-      kModeEnToWord,
-    ];
+    const modes = [kModeWordToCn, kModeWordToEn, kModeCnToWord, kModeEnToWord];
     return Row(
       children: [
         Expanded(
           child: DropdownButtonFormField<String>(
             value: englishQuestionMode,
-            items: modes.map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
+            items:
+                modes
+                    .map((m) => DropdownMenuItem(value: m, child: Text(m)))
+                    .toList(),
             onChanged: (v) {
               if (v == null) return;
               setState(() {
                 englishQuestionMode = v;
               });
             },
-            decoration: const InputDecoration(labelText: 'English question mode'),
+            decoration: const InputDecoration(
+              labelText: 'English question mode',
+            ),
           ),
         ),
       ],
@@ -249,20 +254,32 @@ class _QuizPageState extends State<QuizPage> {
           ],
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(labelText: 'Select Subject'),
+                    decoration: const InputDecoration(
+                      labelText: 'Select Subject',
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(vertical: 1),
+                    ),
+                    icon: Transform.translate(
+                      offset: const Offset(0, -7),
+                      child: const Icon(Icons.arrow_drop_down),
+                    ),
                     value: selectedSubject,
-                    items: subjects
-                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                        .toList(),
+                    items:
+                        subjects
+                            .map(
+                              (s) => DropdownMenuItem(value: s, child: Text(s)),
+                            )
+                            .toList(),
                     onChanged: (v) {
                       setState(() {
                         selectedSubject = v;
@@ -272,9 +289,12 @@ class _QuizPageState extends State<QuizPage> {
                 ),
                 const SizedBox(width: 12),
                 OutlinedButton.icon(
-                  onPressed: (current == null || loading) ? null : () {
-                    _loadNext();
-                  },
+                  onPressed:
+                      (current == null || loading)
+                          ? null
+                          : () {
+                            _loadNext();
+                          },
                   icon: const Icon(Icons.skip_next),
                   label: const Text('Skip'),
                 ),
@@ -287,7 +307,8 @@ class _QuizPageState extends State<QuizPage> {
               runSpacing: 8,
               children: [
                 FilledButton.icon(
-                  onPressed: (selectedSubject == null || loading) ? null : _loadNext,
+                  onPressed:
+                      (selectedSubject == null || loading) ? null : _loadNext,
                   icon: const Icon(Icons.play_arrow),
                   label: const Text('Generate Question'),
                 ),
@@ -297,37 +318,41 @@ class _QuizPageState extends State<QuizPage> {
                     icon: const Icon(Icons.menu_book),
                     label: const Text('Word List'),
                   ),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const HistoryPage()),
-                    );
-                  },
-                  icon: const Icon(Icons.history),
-                  label: const Text('History'),
-                ),
               ],
             ),
             const SizedBox(height: 16),
             if (loading) const LinearProgressIndicator(),
-            if (error != null) Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-            ),
+            if (error != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
             const SizedBox(height: 12),
-            Expanded(
-              child: current == null
-                  ? const Center(child: Text('Please select a subject and generate a question.'))
-                  : _QuestionCard(
-                      mcq: current!,
-                      selectedIndex: selectedIndex,
-                      onTap: _onSelect,
-                      showTitleTts: selectedSubject == 'English' &&
-                          (englishQuestionMode == kModeWordToCn || englishQuestionMode == kModeWordToEn),
-                      showOptionTts: selectedSubject == 'English' &&
-                          (englishQuestionMode == kModeCnToWord || englishQuestionMode == kModeEnToWord),
+            current == null
+                ? const Padding(
+                  padding: EdgeInsets.only(top: 32),
+                  child: Center(
+                    child: Text(
+                      'Please select a subject and generate a question.',
                     ),
-            ),
+                  ),
+                )
+                : _QuestionCard(
+                  mcq: current!,
+                  selectedIndex: selectedIndex,
+                  onTap: _onSelect,
+                  showTitleTts:
+                      selectedSubject == 'English' &&
+                      (englishQuestionMode == kModeWordToCn ||
+                          englishQuestionMode == kModeWordToEn),
+                  showOptionTts:
+                      selectedSubject == 'English' &&
+                      (englishQuestionMode == kModeCnToWord ||
+                          englishQuestionMode == kModeEnToWord),
+                ),
           ],
         ),
       ),
@@ -336,16 +361,19 @@ class _QuizPageState extends State<QuizPage> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: SizedBox.shrink(), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
         ],
         onTap: (index) {
           if (index == 0) {
             // Home：回到主界面（当前页），可选择滚动到顶部或刷新
             // 这里什么都不做即可保持当前主页
           } else if (index == 2) {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const SettingsPage()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const SettingsPage()));
           }
         },
       ),
@@ -416,21 +444,25 @@ class _OptionTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         border: Border.all(
-          color: selected ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
+          color:
+              selected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey.shade300,
         ),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
         onTap: onTap,
         title: Text('$letter. $text'),
-        trailing: showTtsIcon
-            ? IconButton(
-                icon: const Icon(Icons.volume_up, size: 20),
-                onPressed: () {
-                  TtsService.speakWord(text);
-                },
-              )
-            : null,
+        trailing:
+            showTtsIcon
+                ? IconButton(
+                  icon: const Icon(Icons.volume_up, size: 20),
+                  onPressed: () {
+                    TtsService.speakWord(text);
+                  },
+                )
+                : null,
       ),
     );
   }
