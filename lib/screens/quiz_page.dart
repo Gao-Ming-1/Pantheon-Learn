@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'package:flutter/services.dart' as services;
 import '../models/mcq.dart';
 import '../services/ai_service.dart';
 import '../models/word_entry.dart';
@@ -84,12 +83,12 @@ class _QuizPageState extends State<QuizPage> {
 
     switch (englishQuestionMode) {
       case kModeWordToCn:
-        question = '$kModeWordToCn: ${answer.word}';
+        question = '$kModeWordToCn\n${answer.word}';
         options.add(answer.chineseMeaning);
         options.addAll(distractors.map((e) => e.chineseMeaning));
         break;
       case kModeWordToEn:
-        question = '$kModeWordToEn: ${answer.word}';
+        question = '$kModeWordToEn\n${answer.word}';
         options.add(answer.englishMeaning);
         options.addAll(distractors.map((e) => e.englishMeaning));
         break;
@@ -143,7 +142,6 @@ class _QuizPageState extends State<QuizPage> {
     setState(() {
       selectedIndex = index;
     });
-    services.HapticFeedback.selectionClick();
     final isCorrect = index == current!.correctIndex;
     if (isCorrect) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -276,23 +274,12 @@ class _QuizPageState extends State<QuizPage> {
               runSpacing: 8,
               children: [
                 FilledButton.icon(
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(160, 48),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: (selectedSubject == null || loading) ? null : () {
-                    services.HapticFeedback.lightImpact();
-                    _loadNext();
-                  },
+                  onPressed: (selectedSubject == null || loading) ? null : _loadNext,
                   icon: const Icon(Icons.play_arrow),
                   label: const Text('Generate Question'),
                 ),
                 if (selectedSubject == 'English')
                   OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(140, 48),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
                     onPressed: loading ? null : _openWordList,
                     icon: const Icon(Icons.menu_book),
                     label: const Text('Word List'),
@@ -335,39 +322,30 @@ class _QuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 250),
-      switchInCurve: Curves.easeOut,
-      switchOutCurve: Curves.easeIn,
-      child: Card(
-        key: ValueKey(mcq.question),
-        elevation: 1,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(mcq.question, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 16),
-                for (int i = 0; i < mcq.options.length; i++)
-                  _OptionTile(
-                    index: i,
-                    text: mcq.options[i],
-                    selected: selectedIndex == i,
-                    onTap: () => onTap(i),
-                  ),
-              ],
-            ),
-          ),
+    return Card(
+      elevation: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(mcq.question, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 16),
+            for (int i = 0; i < mcq.options.length; i++)
+              _OptionTile(
+                index: i,
+                text: mcq.options[i],
+                selected: selectedIndex == i,
+                onTap: () => onTap(i),
+              ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _OptionTile extends StatefulWidget {
+class _OptionTile extends StatelessWidget {
   final int index;
   final String text;
   final bool selected;
@@ -381,46 +359,20 @@ class _OptionTile extends StatefulWidget {
   });
 
   @override
-  State<_OptionTile> createState() => _OptionTileState();
-}
-
-class _OptionTileState extends State<_OptionTile> {
-  bool _pressed = false;
-
-  @override
   Widget build(BuildContext context) {
-    final letter = String.fromCharCode(65 + widget.index);
-    final borderColor = widget.selected ? Theme.of(context).colorScheme.primary : Colors.grey.shade300;
-    return AnimatedScale(
-      scale: _pressed ? 0.98 : 1.0,
-      duration: const Duration(milliseconds: 120),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            services.HapticFeedback.selectionClick();
-            widget.onTap();
-          },
-          onTapDown: (_) => setState(() => _pressed = true),
-          onTapCancel: () => setState(() => _pressed = false),
-          onTapUp: (_) => setState(() => _pressed = false),
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              border: Border.all(color: borderColor),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              minVerticalPadding: 12,
-              title: Text('$letter. ${widget.text}'),
-            ),
-          ),
+    final letter = String.fromCharCode(65 + index);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: selected ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
         ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        onTap: onTap,
+        title: Text('$letter. $text'),
       ),
     );
   }
 }
-
-
