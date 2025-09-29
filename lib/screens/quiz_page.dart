@@ -7,6 +7,7 @@ import '../models/word_entry.dart';
 import 'word_list_page.dart';
 import '../data/english_dict.dart';
 import '../services/history_service.dart';
+import '../services/tts_service.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
@@ -320,6 +321,10 @@ class _QuizPageState extends State<QuizPage> {
                       mcq: current!,
                       selectedIndex: selectedIndex,
                       onTap: _onSelect,
+                      showTitleTts: selectedSubject == 'English' &&
+                          (englishQuestionMode == kModeWordToCn || englishQuestionMode == kModeWordToEn),
+                      showOptionTts: selectedSubject == 'English' &&
+                          (englishQuestionMode == kModeCnToWord || englishQuestionMode == kModeEnToWord),
                     ),
             ),
           ],
@@ -333,11 +338,15 @@ class _QuestionCard extends StatelessWidget {
   final Mcq mcq;
   final int? selectedIndex;
   final void Function(int index) onTap;
+  final bool showTitleTts;
+  final bool showOptionTts;
 
   const _QuestionCard({
     required this.mcq,
     required this.selectedIndex,
     required this.onTap,
+    this.showTitleTts = false,
+    this.showOptionTts = false,
   });
 
   @override
@@ -349,7 +358,7 @@ class _QuestionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(mcq.question, style: Theme.of(context).textTheme.titleMedium),
+            _QuestionTitle(text: mcq.question, englishMode: showTitleTts),
             const SizedBox(height: 16),
             for (int i = 0; i < mcq.options.length; i++)
               _OptionTile(
@@ -357,6 +366,7 @@ class _QuestionCard extends StatelessWidget {
                 text: mcq.options[i],
                 selected: selectedIndex == i,
                 onTap: () => onTap(i),
+                showTtsIcon: showOptionTts,
               ),
           ],
         ),
@@ -370,12 +380,14 @@ class _OptionTile extends StatelessWidget {
   final String text;
   final bool selected;
   final VoidCallback onTap;
+  final bool showTtsIcon; // 仅 English 匹配题型显示单词发音图标
 
   const _OptionTile({
     required this.index,
     required this.text,
     required this.selected,
     required this.onTap,
+    this.showTtsIcon = false,
   });
 
   @override
@@ -392,7 +404,51 @@ class _OptionTile extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         title: Text('$letter. $text'),
+        trailing: showTtsIcon
+            ? IconButton(
+                icon: const Icon(Icons.volume_up, size: 20),
+                onPressed: () {
+                  TtsService.speakWord(text);
+                },
+              )
+            : null,
       ),
+    );
+  }
+}
+
+class _QuestionTitle extends StatelessWidget {
+  final String text;
+  final bool englishMode; // 仅在 English 的“Pick ... meaning”场景下显示发音按钮
+  const _QuestionTitle({required this.text, required this.englishMode});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!englishMode) {
+      return Text(text, style: Theme.of(context).textTheme.titleMedium);
+    }
+    final parts = text.split('\n');
+    final title = parts.isNotEmpty ? parts.first : text;
+    final word = parts.length > 1 ? parts[1].trim() : '';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        if (word.isNotEmpty)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(word, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.volume_up, size: 20),
+                onPressed: () {
+                  TtsService.speakWord(word);
+                },
+              ),
+            ],
+          ),
+      ],
     );
   }
 }

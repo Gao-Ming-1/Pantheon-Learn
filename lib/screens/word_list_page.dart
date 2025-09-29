@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/word_entry.dart';
+import '../services/tts_service.dart';
 
 class WordListPage extends StatefulWidget {
   final List<WordEntry> words;
@@ -30,6 +31,12 @@ class _WordListPageState extends State<WordListPage> {
             title: Text(w.word),
             subtitle: Text('${w.englishMeaning}\n${w.chineseMeaning}'),
             isThreeLine: true,
+            trailing: IconButton(
+              icon: const Icon(Icons.volume_up, size: 20),
+              onPressed: () {
+                TtsService.speakWord(w.word);
+              },
+            ),
           );
         },
         separatorBuilder: (_, __) => const Divider(height: 1),
