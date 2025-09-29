@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mcq_creator/screens/history_page.dart';
 import 'dart:math';
 import '../models/mcq.dart';
 import '../services/ai_service.dart';
 import '../models/word_entry.dart';
 import 'word_list_page.dart';
 import '../data/english_dict.dart';
+import '../services/history_service.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
@@ -143,6 +145,15 @@ class _QuizPageState extends State<QuizPage> {
       selectedIndex = index;
     });
     final isCorrect = index == current!.correctIndex;
+    // 记录历史
+    if (selectedSubject != null && current != null) {
+      HistoryService.addEntry(
+        subject: selectedSubject!,
+        mcq: current!,
+        selectedIndex: index,
+        wasCorrect: isCorrect,
+      );
+    }
     if (isCorrect) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Correct! Generating next question…')),
@@ -284,6 +295,15 @@ class _QuizPageState extends State<QuizPage> {
                     icon: const Icon(Icons.menu_book),
                     label: const Text('Word List'),
                   ),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const HistoryPage()),
+                    );
+                  },
+                  icon: const Icon(Icons.history),
+                  label: const Text('History'),
+                ),
               ],
             ),
             const SizedBox(height: 16),
