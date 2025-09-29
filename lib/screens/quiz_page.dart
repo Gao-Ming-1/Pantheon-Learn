@@ -231,6 +231,10 @@ class _QuizPageState extends State<QuizPage> {
               if (v == null) return;
               setState(() {
                 englishQuestionMode = v;
+                // 切换模式后清空当前题目，显示默认提示
+                current = null;
+                selectedIndex = null;
+                error = null;
               });
             },
             decoration: const InputDecoration(
@@ -333,7 +337,7 @@ class _QuizPageState extends State<QuizPage> {
             const SizedBox(height: 12),
             current == null
                 ? const Padding(
-                  padding: EdgeInsets.only(top: 32),
+                  padding: EdgeInsets.only(top: 200),
                   child: Center(
                     child: Text(
                       'Please select a subject and generate a question.',
