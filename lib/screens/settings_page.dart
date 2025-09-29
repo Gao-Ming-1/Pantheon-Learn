@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'quiz_page.dart';
+import '../services/theme_service.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -11,8 +12,41 @@ class SettingsPage extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: const Text('Settings'),
       ),
-      body: const Center(
-        child: Text('Settings will be available here.'),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Appearance', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            ValueListenableBuilder<ThemeMode>(
+              valueListenable: ThemeService.themeMode,
+              builder: (context, mode, _) {
+                final isDark = mode == ThemeMode.dark;
+                return Row(
+                  children: [
+                    Expanded(
+                      child: SegmentedButton<ThemeMode>(
+                        segments: const [
+                          ButtonSegment(value: ThemeMode.light, label: Text('Light')),
+                          ButtonSegment(value: ThemeMode.dark, label: Text('Dark')),
+                        ],
+                        selected: {isDark ? ThemeMode.dark : ThemeMode.light},
+                        onSelectionChanged: (set) {
+                          if (set.contains(ThemeMode.dark)) {
+                            ThemeService.setDark();
+                          } else {
+                            ThemeService.setLight();
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 2,
