@@ -8,6 +8,7 @@ import 'word_list_page.dart';
 import '../data/english_dict.dart';
 import '../services/history_service.dart';
 import '../services/tts_service.dart';
+import 'settings_page.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
@@ -329,6 +330,24 @@ class _QuizPageState extends State<QuizPage> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: SizedBox.shrink(), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+        ],
+        onTap: (index) {
+          if (index == 0) {
+            // Home：回到主界面（当前页），可选择滚动到顶部或刷新
+            // 这里什么都不做即可保持当前主页
+          } else if (index == 2) {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SettingsPage()),
+            );
+          }
+        },
       ),
     );
   }
