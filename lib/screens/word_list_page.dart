@@ -34,7 +34,7 @@ class _WordListPageState extends State<WordListPage> {
             trailing: IconButton(
               icon: const Icon(Icons.volume_up, size: 20),
               onPressed: () {
-                TtsService.speakWord(w.word);
+                TtsService.instance.speak(w.word);
               },
             ),
           );

@@ -458,15 +458,14 @@ class _OptionTile extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         title: Text('$letter. $text'),
-        trailing:
-            showTtsIcon
-                ? IconButton(
-                  icon: const Icon(Icons.volume_up, size: 20),
-                  onPressed: () {
-                    TtsService.speakWord(text);
-                  },
-                )
-                : null,
+        trailing: showTtsIcon
+            ? IconButton(
+                icon: const Icon(Icons.volume_up, size: 20),
+                onPressed: () {
+                  TtsService.instance.speak(text);
+                },
+              )
+            : null,
       ),
     );
   }
@@ -498,7 +497,7 @@ class _QuestionTitle extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.volume_up, size: 20),
                 onPressed: () {
-                  TtsService.speakWord(word);
+                          TtsService.instance.speak(word);
                 },
               ),
             ],
