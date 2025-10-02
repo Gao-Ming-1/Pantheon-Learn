@@ -272,10 +272,9 @@ packages:
   text_to_speech:
     dependency: "direct main"
     description:
-      name: text_to_speech
-      sha256: f9adeb82bf0c912fd7f0ce656b1283e49b0869f9247bf865859dcf0186ed32f3
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugins/text_to_speech-0.2.3"
+      relative: true
+    source: path
     version: "0.2.3"
   text_to_speech_macos:
     dependency: transitive

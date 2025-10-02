@@ -38,7 +38,8 @@ dependencies:
   rename: ^3.1.0
   archive: ^3.6.1
   xml: ^6.5.0
-  text_to_speech: ^0.2.3
+  text_to_speech:
+    path: plugins/text_to_speech-0.2.3
 
 dev_dependencies:
   flutter_test:
