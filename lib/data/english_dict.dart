@@ -16,7 +16,6 @@ const List<WordEntry> englishWordDict = [
   WordEntry(word: 'Accountable', englishMeaning: 'expected to justify one\'s actions', chineseMeaning: '有责任的'),
   WordEntry(word: 'Administrative', englishMeaning: 'relating to the running of an organization', chineseMeaning: '行政的'),
   WordEntry(word: 'Antagonise', englishMeaning: 'to make someone dislike you', chineseMeaning: '使对立'),
-
   WordEntry(word: 'Beneficiary', englishMeaning: 'a person or group who receives money or advantages', chineseMeaning: '受益人'),
   WordEntry(word: 'Vengeful', englishMeaning: 'disposed to seek revenge', chineseMeaning: '报复性的'),
   WordEntry(word: 'Induce', englishMeaning: 'to persuade someone to do something', chineseMeaning: '诱导'),
@@ -32,7 +31,6 @@ const List<WordEntry> englishWordDict = [
   WordEntry(word: 'Argumentative', englishMeaning: 'wanting to argue', chineseMeaning: '好争论的'),
   WordEntry(word: 'Authenticate', englishMeaning: 'to prove that something is true', chineseMeaning: '认证'),
   WordEntry(word: 'Comprehensive', englishMeaning: 'complete', chineseMeaning: '全面的'),
-
   WordEntry(word: 'Nefarious', englishMeaning: 'wicked or criminal', chineseMeaning: '极坏的'),
   WordEntry(word: 'Repentance', englishMeaning: 'regret or remorse', chineseMeaning: '悔悟'),
   WordEntry(word: 'Admission', englishMeaning: 'an acknowledgement of the truth of something', chineseMeaning: '承认'),
@@ -48,7 +46,6 @@ const List<WordEntry> englishWordDict = [
   WordEntry(word: 'Cowardice', englishMeaning: 'a lack of bravery', chineseMeaning: '胆怯'),
   WordEntry(word: 'Credible', englishMeaning: 'able to be believed or trusted', chineseMeaning: '可信的'),
   WordEntry(word: 'Distinguishable', englishMeaning: 'able to be discerned', chineseMeaning: '可区分的'),
-
   WordEntry(word: 'Declaration', englishMeaning: 'an important official announcement', chineseMeaning: '宣布'),
   WordEntry(word: 'Cautionary', englishMeaning: 'serving as a warning', chineseMeaning: '警告的'),
   WordEntry(word: 'Defiance', englishMeaning: 'bold disobedience', chineseMeaning: '违抗'),
