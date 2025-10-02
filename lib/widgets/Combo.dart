@@ -7,10 +7,10 @@ class ComboWidget extends StatefulWidget {
   const ComboWidget({super.key});
 
   @override
-  State<ComboWidget> createState() => _ComboWidgetState();
+  ComboWidgetState createState() => ComboWidgetState();
 }
 
-class _ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin {
+class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin {
   final List<String> comboLevels = [
     "D——Dismal",
     "C——Crazy",
