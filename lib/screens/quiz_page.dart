@@ -25,7 +25,8 @@ class _QuizPageState extends State<QuizPage> {
   String? error;
 
   final subjects = const [
-    'English',
+    'Olevel English',
+    'PSLE English',
     'Pure Chemistry',
     'Pure Physics',
     'Combine Chemistry',
@@ -49,7 +50,7 @@ class _QuizPageState extends State<QuizPage> {
     });
     try {
       Mcq mcq;
-      if (selectedSubject == 'English') {
+      if (selectedSubject == 'Olevel English' || selectedSubject == 'PSLE English') {
         mcq = await _generateEnglishMcq();
       } else {
         mcq = await AiService.generateSingleMcq(selectedSubject!);
@@ -69,7 +70,7 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   Future<Mcq> _generateEnglishMcq() async {
-    final words = englishWordDict;
+    final words = selectedSubject == 'PSLE English' ? englishWordDictPSLE : englishWordDictOlevel;
     if (words.isEmpty) {
       throw Exception('No words found in resources.');
     }
@@ -90,13 +91,13 @@ class _QuizPageState extends State<QuizPage> {
     switch (englishQuestionMode) {
       case kModeWordToCn:
         question = '$kModeWordToCn\n${answer.word}';
-        options.add(answer.chineseMeaning);
-        options.addAll(distractors.map((e) => e.chineseMeaning));
+        options.add(answer.chineseMeaning.isEmpty ? '' : answer.chineseMeaning.first);
+        options.addAll(distractors.map((e) => e.chineseMeaning.isEmpty ? '' : e.chineseMeaning.first));
         break;
       case kModeWordToEn:
         question = '$kModeWordToEn\n${answer.word}';
-        options.add(answer.englishMeaning);
-        options.addAll(distractors.map((e) => e.englishMeaning));
+        options.add(answer.englishMeaning.isEmpty ? '' : answer.englishMeaning.first);
+        options.addAll(distractors.map((e) => e.englishMeaning.isEmpty ? '' : e.englishMeaning.first));
         break;
       case kModeCnToWord:
         question = '$kModeCnToWord\n${answer.chineseMeaning}';
@@ -104,7 +105,7 @@ class _QuizPageState extends State<QuizPage> {
         options.addAll(distractors.map((e) => e.word));
         break;
       case kModeEnToWord:
-        question = '$kModeEnToWord\n${answer.englishMeaning}';
+        question = '$kModeEnToWord\n${answer.englishMeaning.isEmpty ? '' : answer.englishMeaning.first}';
         options.add(answer.word);
         options.addAll(distractors.map((e) => e.word));
         break;
@@ -209,7 +210,7 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   Future<void> _openWordList() async {
-    final words = englishWordDict;
+    final words = selectedSubject == 'PSLE English' ? englishWordDictPSLE : englishWordDictOlevel;
     if (!mounted) return;
     Navigator.of(
       context,
@@ -305,7 +306,7 @@ class _QuizPageState extends State<QuizPage> {
               ],
             ),
             const SizedBox(height: 12),
-            if (selectedSubject == 'English') _englishToolbar(),
+            if (selectedSubject == 'Olevel English' || selectedSubject == 'PSLE English') _englishToolbar(),
             Wrap(
               spacing: 12,
               runSpacing: 8,
@@ -316,7 +317,7 @@ class _QuizPageState extends State<QuizPage> {
                   icon: const Icon(Icons.play_arrow),
                   label: const Text('Generate Question'),
                 ),
-                if (selectedSubject == 'English')
+                if (selectedSubject == 'Olevel English' || selectedSubject == 'PSLE English')
                   OutlinedButton.icon(
                     onPressed: loading ? null : _openWordList,
                     icon: const Icon(Icons.menu_book),
@@ -349,11 +350,11 @@ class _QuizPageState extends State<QuizPage> {
                   selectedIndex: selectedIndex,
                   onTap: _onSelect,
                   showTitleTts:
-                      selectedSubject == 'English' &&
+                      (selectedSubject == 'Olevel English' || selectedSubject == 'PSLE English') &&
                       (englishQuestionMode == kModeWordToCn ||
                           englishQuestionMode == kModeWordToEn),
                   showOptionTts:
-                      selectedSubject == 'English' &&
+                      (selectedSubject == 'Olevel English' || selectedSubject == 'PSLE English') &&
                       (englishQuestionMode == kModeCnToWord ||
                           englishQuestionMode == kModeEnToWord),
                 ),

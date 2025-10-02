@@ -29,7 +29,7 @@ class _WordListPageState extends State<WordListPage> {
           final w = widget.words[i];
           return ListTile(
             title: Text(w.word),
-            subtitle: Text('${w.englishMeaning}\n${w.chineseMeaning}'),
+            subtitle: Text('${w.englishMeaning.join("; ")}\n${w.chineseMeaning.join("；")}'),
             isThreeLine: true,
             trailing: IconButton(
               icon: const Icon(Icons.volume_up, size: 20),

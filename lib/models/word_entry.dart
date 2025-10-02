@@ -1,37 +1,52 @@
 class WordEntry {
-  final String word;            // 英文单词或词组
-  final String englishMeaning;  // 英语释义（可选）
-  final String chineseMeaning;  // 中文释义
+  final String word;                 // 英文单词或词组
+  final List<String> englishMeaning; // 英语释义（可多条）
+  final List<String> chineseMeaning; // 中文释义（可多条）
 
-  const WordEntry({
+  WordEntry({
     required this.word,
-    required this.englishMeaning,
-    required this.chineseMeaning,
-  });
+    required dynamic englishMeaning,
+    required dynamic chineseMeaning,
+  })  : englishMeaning = _asStringList(englishMeaning),
+        chineseMeaning = _asStringList(chineseMeaning);
+
+  static List<String> _asStringList(dynamic value) {
+    if (value == null) return <String>[];
+    if (value is List) {
+      return value.map((e) => e.toString()).toList();
+    }
+    return <String>[value.toString()];
+  }
 
   factory WordEntry.fromJson(Map<String, dynamic> json) => WordEntry(
-    word: json['word'] as String,
-    englishMeaning: json['english_meaning'] as String? ?? '',
-    chineseMeaning: json['chinese_meaning'] as String? ?? '',
-  );
+        word: json['word'] as String,
+        englishMeaning: json['english_meaning'] ?? [],
+        chineseMeaning: json['chinese_meaning'] ?? [],
+      );
 
   Map<String, dynamic> toJson() => {
-    'word': word,
-    'english_meaning': englishMeaning,
-    'chinese_meaning': chineseMeaning,
-  };
+        'word': word,
+        'english_meaning': englishMeaning,
+        'chinese_meaning': chineseMeaning,
+      };
 
   @override
-  String toString() => '$word — $chineseMeaning';
+  String toString() => '$word — ${chineseMeaning.join("; ")}';
 }
 
-// 你可以把内置的词汇表填在这里：
-// 例如：
-// const kEnglishWordBank = <WordEntry>[
-//   WordEntry(word: 'photosynthesis', englishMeaning: 'process in plants making food', chineseMeaning: '光合作用'),
-//   WordEntry(word: 'evaporation', englishMeaning: 'liquid to gas at surface', chineseMeaning: '蒸发'),
-// ];
-const List<WordEntry> kEnglishWordBank = <WordEntry>[];
+
+final List<WordEntry> kEnglishWordBank = [
+  WordEntry(
+    word: 'photosynthesis',
+    englishMeaning: 'process in plants making food',
+    chineseMeaning: '光合作用',
+  ),
+  WordEntry(
+    word: 'evaporation',
+    englishMeaning: 'liquid to gas at surface',
+    chineseMeaning: '蒸发',
+  ),
+];
 
 Future<List<WordEntry>> getEnglishWordList() async {
   return kEnglishWordBank;
