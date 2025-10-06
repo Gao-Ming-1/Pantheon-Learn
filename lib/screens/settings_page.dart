@@ -72,6 +72,48 @@ class SettingsPage extends StatelessWidget {
                 );
               },
             ),
+            const SizedBox(height: 16),
+            // How to Use (English)
+            Material(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('How to Use (English)'),
+                      content: const Text(
+                        'Welcome to the English Practice App!\n\n'
+                        '1. Select a subject and start answering questions.\n'
+                        '2. If you keep answering correctly, your combo level increases and cool effects appear!\n'
+                        '3. If you stop or answer wrong, the combo slowly drops.\n'
+                        '4. You can also explore other subjects with AI-generated questions.\n\n'
+                        'Have fun improving your English!',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text('OK'),
+                        )
+                      ],
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).dividerColor),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const ListTile(
+                    leading: Icon(Icons.help_outline),
+                    title: Text('How to Use (English)'),
+                    trailing: Icon(Icons.chevron_right),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

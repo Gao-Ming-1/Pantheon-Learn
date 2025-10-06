@@ -485,7 +485,11 @@ class _OptionTile extends StatelessWidget {
       ),
       child: ListTile(
         onTap: onTap,
-        title: Text('$letter. $text'),
+        title: Text(
+          '$letter. $text',
+          softWrap: true,
+          overflow: TextOverflow.visible,
+        ),
         trailing:
             showTtsIcon
                 ? IconButton(
@@ -516,12 +520,24 @@ class _QuestionTitle extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium,
+          softWrap: true,
+          overflow: TextOverflow.visible,
+        ),
         if (word.isNotEmpty)
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(word, style: Theme.of(context).textTheme.titleLarge),
+              Flexible(
+                child: Text(
+                  word,
+                  style: Theme.of(context).textTheme.titleLarge,
+                  softWrap: true,
+                  overflow: TextOverflow.visible,
+                ),
+              ),
               const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.volume_up, size: 20),
