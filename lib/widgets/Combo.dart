@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import '../services/audio_service.dart';
 
 class ComboWidget extends StatefulWidget {
   const ComboWidget({super.key});
@@ -39,6 +40,12 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
   Timer? decayTimer;
   bool paused = false; // 外部可暂停衰减
 
+  // 可调参数（默认用于 Olevel/PSLE English）
+  double decayStep = 0.01;        // 每 tick 衰减
+  double correctIncD = 0.58;      // D 等级每次增加
+  double correctIncOther = 0.25;  // 其它等级每次增加
+  double wrongDec = 0.30;         // 答错减少
+
   late AudioPlayer audioPlayer;
 
   late AnimationController textAnimController;
@@ -53,6 +60,7 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
     super.initState();
 
     audioPlayer = AudioPlayer();
+    AudioService.instance.init();
 
     textAnimController = AnimationController(
       vsync: this,
@@ -70,7 +78,7 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
       if (paused) return;
       setState(() {
         double minProgress = 0.25 * levelIndex; // 当前等级下限
-        progress -= 0.01;
+        progress -= decayStep;
         if (progress < minProgress) {
           if (levelIndex > 0) levelIndex--;
           progress = minProgress;
@@ -91,8 +99,8 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
   void onAnswerCorrect() {
     setState(() {
       comboCount++;
-      // D 等级更宽松：一次增加约 0.58，其它等级保持每级 0.25 区间的推进
-      final double inc = (levelIndex == 0) ? 0.58 : 0.25;
+      // 可调：D 等级、其它等级使用不同增量
+      final double inc = (levelIndex == 0) ? correctIncD : correctIncOther;
       progress = (progress + inc).clamp(0.0, 1.0);
 
       // 根据进度定位等级（按 0.25 分段）
@@ -102,6 +110,7 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
     });
 
     // 播放音效
+    audioPlayer.setVolume(AudioService.instance.volume01);
     audioPlayer.play(AssetSource('audio/combo_level_$levelIndex.mp3'));
 
     // 文字动画
@@ -119,8 +128,8 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
 
   void onAnswerWrong() {
     setState(() {
-      // 更宽松：整体进度减少约 0.30，而非清零
-      progress = (progress - 0.30).clamp(0.0, 1.0);
+      // 可调：整体进度减少比例
+      progress = (progress - wrongDec).clamp(0.0, 1.0);
       int targetLevel = (progress / 0.25).floor();
       if (targetLevel >= comboLevels.length) targetLevel = comboLevels.length - 1;
       levelIndex = targetLevel;
@@ -134,6 +143,14 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
 
   void setPaused(bool value) {
     paused = value;
+  }
+
+  // 外部设置难度参数（用于非英语科目调整）
+  void setTuning({double? decayStep, double? correctIncD, double? correctIncOther, double? wrongDec}) {
+    if (decayStep != null) this.decayStep = decayStep;
+    if (correctIncD != null) this.correctIncD = correctIncD;
+    if (correctIncOther != null) this.correctIncOther = correctIncOther;
+    if (wrongDec != null) this.wrongDec = wrongDec;
   }
 
   Color _getGradientColor(double t, Color start, Color end) {

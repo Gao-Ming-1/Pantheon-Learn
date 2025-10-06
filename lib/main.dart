@@ -1,9 +1,17 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'screens/quiz_page.dart';
 import 'services/theme_service.dart';
+import 'services/audio_service.dart';
 
 void main() {
-  runApp(const MyApp());
+  runZonedGuarded(() async {
+    await ThemeService.init();
+    await AudioService.instance.init();
+    runApp(const MyApp());
+  }, (error, stack) {
+    // ignore log
+  });
 }
 
 class MyApp extends StatelessWidget {

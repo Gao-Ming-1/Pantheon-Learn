@@ -41,6 +41,7 @@ dependencies:
   audioplayers: ^6.5.1
   text_to_speech:
     path: plugins/text_to_speech-0.2.3
+  shared_preferences: ^2.3.5
 
 dev_dependencies:
   flutter_test:

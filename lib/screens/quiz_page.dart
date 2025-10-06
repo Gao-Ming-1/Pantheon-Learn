@@ -54,9 +54,23 @@ class _QuizPageState extends State<QuizPage> {
       Mcq mcq;
       if (selectedSubject == 'Olevel English' ||
           selectedSubject == 'PSLE English') {
+        // 英语科目：使用默认参数（较宽松）
+        _comboKey.currentState?.setTuning(
+          decayStep: 0.01,
+          correctIncD: 0.58,
+          correctIncOther: 0.25,
+          wrongDec: 0.30,
+        );
         mcq = await _generateEnglishMcq();
       } else {
-        // 非英语科目为 AI 生成，生成过程中暂停连击衰减
+        // 非英语科目：更慢衰减、更大奖励、更重惩罚
+        _comboKey.currentState?.setTuning(
+          decayStep: 0.006,     // 更慢衰减
+          correctIncD: 0.70,    // 更大奖励
+          correctIncOther: 0.35,
+          wrongDec: 0.45,       // 惩罚更重
+        );
+        // 生成过程中暂停连击衰减
         _comboKey.currentState?.setPaused(true);
         mcq = await AiService.generateSingleMcq(selectedSubject!);
       }
@@ -185,12 +199,11 @@ class _QuizPageState extends State<QuizPage> {
         wasCorrect: isCorrect,
       );
     }
-    if (isEnglish) {
-      if (isCorrect) {
-        _comboKey.currentState?.onAnswerCorrect();
-      } else {
-        _comboKey.currentState?.onAnswerWrong();
-      }
+    // 所有科目均更新连击（英语使用默认参数，非英语已在载题时设置调优）
+    if (isCorrect) {
+      _comboKey.currentState?.onAnswerCorrect();
+    } else {
+      _comboKey.currentState?.onAnswerWrong();
     }
     if (isCorrect) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -375,13 +388,7 @@ class _QuizPageState extends State<QuizPage> {
                     ),
                   ),
                 ),
-                if (selectedSubject == 'Olevel English' ||
-                    selectedSubject == 'PSLE English')
-                  OutlinedButton.icon(
-                    onPressed: loading ? null : _openWordList,
-                    icon: const Icon(Icons.menu_book),
-                    label: const Text('Word List'),
-                  ),
+                // Word List 按钮移至 Settings 页面
               ],
             ),
             const SizedBox(height: 16),
