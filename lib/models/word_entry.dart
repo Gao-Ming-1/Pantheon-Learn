@@ -1,28 +1,28 @@
 class WordEntry {
-  final String word;                 // 英文单词或词组
-  final List<String> englishMeaning; // 英语释义（可多条）
-  final List<String> chineseMeaning; // 中文释义（可多条）
+  final String word;
+  final List<String> englishMeaning;
+  final List<String> chineseMeaning;
 
   WordEntry({
     required this.word,
-    required dynamic englishMeaning,
-    required dynamic chineseMeaning,
-  })  : englishMeaning = _asStringList(englishMeaning),
-        chineseMeaning = _asStringList(chineseMeaning);
+    required this.englishMeaning,
+    required this.chineseMeaning,
+  });
 
-  static List<String> _asStringList(dynamic value) {
+  // 简化构造函数，移除复杂的类型转换
+  factory WordEntry.fromJson(Map<String, dynamic> json) => WordEntry(
+        word: json['word']?.toString() ?? '',
+        englishMeaning: _convertToList(json['english_meaning']),
+        chineseMeaning: _convertToList(json['chinese_meaning']),
+      );
+
+  static List<String> _convertToList(dynamic value) {
     if (value == null) return <String>[];
     if (value is List) {
-      return value.map((e) => e.toString()).toList();
+      return value.whereType<String>().toList();
     }
-    return <String>[value.toString()];
+    return [value.toString()];
   }
-
-  factory WordEntry.fromJson(Map<String, dynamic> json) => WordEntry(
-        word: json['word'] as String,
-        englishMeaning: json['english_meaning'] ?? [],
-        chineseMeaning: json['chinese_meaning'] ?? [],
-      );
 
   Map<String, dynamic> toJson() => {
         'word': word,
@@ -32,22 +32,4 @@ class WordEntry {
 
   @override
   String toString() => '$word — ${chineseMeaning.join("; ")}';
-}
-
-
-final List<WordEntry> kEnglishWordBank = [
-  WordEntry(
-    word: 'photosynthesis',
-    englishMeaning: 'process in plants making food',
-    chineseMeaning: '光合作用',
-  ),
-  WordEntry(
-    word: 'evaporation',
-    englishMeaning: 'liquid to gas at surface',
-    chineseMeaning: '蒸发',
-  ),
-];
-
-Future<List<WordEntry>> getEnglishWordList() async {
-  return kEnglishWordBank;
 }

@@ -101,6 +101,7 @@ class SettingsPage extends StatelessWidget {
                     );
                     return;
                   }
+
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => WordListPage(words: englishWordDictPSLE),
