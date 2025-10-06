@@ -8,7 +8,7 @@ import '../data/english_dict.dart';
 import '../services/history_service.dart';
 import '../services/tts_service.dart';
 import 'settings_page.dart';
-import '../widgets/Combo.dart';
+import '../widgets/combo.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});

@@ -12,7 +12,6 @@ class TtsService {
     _tts.setLanguage('en-US');
     _tts.setRate(1.0);
     _tts.setVolume(1.0);
-    print('TextToSpeech initialized');
     _inited = true;
   }
 
