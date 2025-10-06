@@ -3,8 +3,8 @@ import '../models/word_entry.dart';
 final List<WordEntry> englishWordDictOlevel = [
   WordEntry(
     word: 'Adjustable',
-    englishMeaning: 'capable of being changed',
-    chineseMeaning: '可调整的',
+    englishMeaning: ['capable of being changed'],
+    chineseMeaning: ['可调整的'],
   ),
   WordEntry(
     word: 'Factual',

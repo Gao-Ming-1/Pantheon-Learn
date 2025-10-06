@@ -9,6 +9,7 @@ import '../data/english_dict.dart';
 import '../services/history_service.dart';
 import '../services/tts_service.dart';
 import 'settings_page.dart';
+import '../widgets/Combo.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
@@ -23,6 +24,7 @@ class _QuizPageState extends State<QuizPage> {
   int? selectedIndex;
   bool loading = false;
   String? error;
+  final GlobalKey<ComboWidgetState> _comboKey = GlobalKey<ComboWidgetState>();
 
   final subjects = const [
     'Olevel English',
@@ -54,6 +56,8 @@ class _QuizPageState extends State<QuizPage> {
           selectedSubject == 'PSLE English') {
         mcq = await _generateEnglishMcq();
       } else {
+        // 非英语科目为 AI 生成，生成过程中暂停连击衰减
+        _comboKey.currentState?.setPaused(true);
         mcq = await AiService.generateSingleMcq(selectedSubject!);
       }
       setState(() {
@@ -66,6 +70,8 @@ class _QuizPageState extends State<QuizPage> {
     } finally {
       setState(() {
         loading = false;
+        // 恢复连击衰减
+        _comboKey.currentState?.setPaused(false);
       });
     }
   }
@@ -169,6 +175,7 @@ class _QuizPageState extends State<QuizPage> {
       selectedIndex = index;
     });
     final isCorrect = index == current!.correctIndex;
+    final isEnglish = selectedSubject == 'Olevel English' || selectedSubject == 'PSLE English';
     // 记录历史
     if (selectedSubject != null && current != null) {
       HistoryService.addEntry(
@@ -177,6 +184,13 @@ class _QuizPageState extends State<QuizPage> {
         selectedIndex: index,
         wasCorrect: isCorrect,
       );
+    }
+    if (isEnglish) {
+      if (isCorrect) {
+        _comboKey.currentState?.onAnswerCorrect();
+      } else {
+        _comboKey.currentState?.onAnswerWrong();
+      }
     }
     if (isCorrect) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -310,6 +324,8 @@ class _QuizPageState extends State<QuizPage> {
                     onChanged: (v) {
                       setState(() {
                         selectedSubject = v;
+                        // 切换科目时重置连击
+                        _comboKey.currentState?.reset();
                       });
                     },
                   ),
@@ -331,15 +347,33 @@ class _QuizPageState extends State<QuizPage> {
             if (selectedSubject == 'Olevel English' ||
                 selectedSubject == 'PSLE English')
               _englishToolbar(),
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 FilledButton.icon(
                   onPressed:
                       (selectedSubject == null || loading) ? null : _loadNext,
                   icon: const Icon(Icons.play_arrow),
                   label: const Text('Generate Question'),
+                ),
+                const SizedBox(width: 8),
+                // Combo 紧随按钮右侧，单行显示
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                      height: 56,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: SizedBox(
+                          width: 200,
+                          height: 60,
+                          child: ComboWidget(key: _comboKey),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
                 if (selectedSubject == 'Olevel English' ||
                     selectedSubject == 'PSLE English')

@@ -31,12 +31,13 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
     Colors.yellowAccent,
   ];
 
-  final List<double> fontSizes = [24, 26, 28, 30, 34, 38, 42];
+  final List<double> fontSizes = [18, 20, 22, 24, 26, 28, 30];
 
   int comboCount = 0;
   int levelIndex = 0;
   double progress = 0.0;
   Timer? decayTimer;
+  bool paused = false; // 外部可暂停衰减
 
   late AudioPlayer audioPlayer;
 
@@ -66,6 +67,7 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
       });
 
     decayTimer = Timer.periodic(const Duration(milliseconds: 200), (_) {
+      if (paused) return;
       setState(() {
         double minProgress = 0.25 * levelIndex; // 当前等级下限
         progress -= 0.01;
@@ -89,12 +91,14 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
   void onAnswerCorrect() {
     setState(() {
       comboCount++;
-      progress += 0.25;
-      double levelMax = 0.25 * (levelIndex + 1);
-      if (progress >= levelMax) {
-        if (levelIndex < comboLevels.length - 1) levelIndex++;
-        progress = 0.0;
-      }
+      // D 等级更宽松：一次增加约 0.58，其它等级保持每级 0.25 区间的推进
+      final double inc = (levelIndex == 0) ? 0.58 : 0.25;
+      progress = (progress + inc).clamp(0.0, 1.0);
+
+      // 根据进度定位等级（按 0.25 分段）
+      int targetLevel = (progress / 0.25).floor();
+      if (targetLevel >= comboLevels.length) targetLevel = comboLevels.length - 1;
+      levelIndex = targetLevel;
     });
 
     // 播放音效
@@ -115,10 +119,21 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
 
   void onAnswerWrong() {
     setState(() {
-      comboCount = 0;
-      levelIndex = 0;
-      progress = 0.0;
+      // 更宽松：整体进度减少约 0.30，而非清零
+      progress = (progress - 0.30).clamp(0.0, 1.0);
+      int targetLevel = (progress / 0.25).floor();
+      if (targetLevel >= comboLevels.length) targetLevel = comboLevels.length - 1;
+      levelIndex = targetLevel;
+      if (progress == 0.0) comboCount = 0;
     });
+  }
+
+  void reset() {
+    onAnswerWrong();
+  }
+
+  void setPaused(bool value) {
+    paused = value;
   }
 
   Color _getGradientColor(double t, Color start, Color end) {
@@ -160,12 +175,16 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
               double scale = 1.0 + 0.5 * textAnimController.value;
               double rotate = 0.1 * textAnimController.value;
               Color color = _getGradientColor(comboCount/10, baseColors[levelIndex], Colors.white);
-              return Transform.rotate(
-                angle: rotate,
-                child: Transform.scale(
-                  scale: scale,
+              return Opacity(
+                opacity: 0.7,
+                child: Transform.rotate(
+                  angle: rotate,
+                  child: Transform.scale(
+                    scale: scale,
                   child: Text(
                     comboLevels[levelIndex],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: fontSizes[levelIndex],
                       fontWeight: FontWeight.bold,
@@ -174,6 +193,7 @@ class ComboWidgetState extends State<ComboWidget> with TickerProviderStateMixin 
                         Shadow(blurRadius: 4, color: Colors.white, offset: Offset(2,2))
                       ],
                     ),
+                  ),
                   ),
                 ),
               );
