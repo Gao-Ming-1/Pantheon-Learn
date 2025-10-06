@@ -95,18 +95,36 @@ class SettingsPage extends StatelessWidget {
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () {
-                  if (englishWordDictPSLE.isEmpty) {
+                  // 更严格的安全检查
+                  if (englishWordDictPSLE.isEmpty ||
+                      englishWordDictPSLE.any((entry) => entry.word.isEmpty)) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('PSLE Word List is empty')),
+                      const SnackBar(
+                        content: Text(
+                          'PSLE Word List is empty or contains invalid data',
+                        ),
+                      ),
                     );
                     return;
                   }
 
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => WordListPage(words: englishWordDictPSLE),
-                    ),
-                  );
+                  try {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder:
+                            (_) => WordListPage(
+                              words:
+                                  englishWordDictPSLE
+                                      .where((entry) => entry.word.isNotEmpty)
+                                      .toList(),
+                            ),
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error loading word list: $e')),
+                    );
+                  }
                 },
                 child: Container(
                   decoration: BoxDecoration(

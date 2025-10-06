@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mcq_creator/screens/history_page.dart';
 import 'dart:math';
 import '../models/mcq.dart';
 import '../services/ai_service.dart';
