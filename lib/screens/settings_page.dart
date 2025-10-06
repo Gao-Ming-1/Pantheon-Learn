@@ -22,12 +22,16 @@ class SettingsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Volume control (0-100) with snapping
-            const Text('Volume', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            const Text(
+              'Volume',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
             FutureBuilder(
               future: AudioService.instance.init(),
               builder: (context, snapshot) {
-                final initial = AudioService.instance.getVolumePercent().toDouble();
+                final initial =
+                    AudioService.instance.getVolumePercent().toDouble();
                 return StatefulBuilder(
                   builder: (context, setLocal) {
                     double value = initial;
@@ -41,7 +45,8 @@ class SettingsPage extends StatelessWidget {
                         // snap to nearest 10 when close
                         double snapped = v;
                         final nearest10 = (v / 10).round() * 10;
-                        if ((v - nearest10).abs() <= 2) snapped = nearest10.toDouble();
+                        if ((v - nearest10).abs() <= 2)
+                          snapped = nearest10.toDouble();
                         setLocal(() {});
                         AudioService.instance.setVolumePercent(snapped.round());
                       },
@@ -51,9 +56,10 @@ class SettingsPage extends StatelessWidget {
               },
             ),
             const SizedBox(height: 16),
-            const Text('Word List', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            const Text('History', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            const Text(
+              'Word List',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
             // O/PSLE Word List Buttons
             Material(
@@ -63,7 +69,10 @@ class SettingsPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => WordListPage(words: englishWordDictOlevel)),
+                    MaterialPageRoute(
+                      builder:
+                          (_) => WordListPage(words: englishWordDictOlevel),
+                    ),
                   );
                 },
                 child: Container(
@@ -86,8 +95,16 @@ class SettingsPage extends StatelessWidget {
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () {
+                  if (englishWordDictPSLE.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('PSLE Word List is empty')),
+                    );
+                    return;
+                  }
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => WordListPage(words: englishWordDictPSLE)),
+                    MaterialPageRoute(
+                      builder: (_) => WordListPage(words: englishWordDictPSLE),
+                    ),
                   );
                 },
                 child: Container(
@@ -102,6 +119,11 @@ class SettingsPage extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'History',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Material(
@@ -128,7 +150,10 @@ class SettingsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const Text('Appearance', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            const Text(
+              'Appearance',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
             ValueListenableBuilder<ThemeMode>(
               valueListenable: ThemeService.themeMode,
@@ -139,8 +164,14 @@ class SettingsPage extends StatelessWidget {
                     Expanded(
                       child: SegmentedButton<ThemeMode>(
                         segments: const [
-                          ButtonSegment(value: ThemeMode.light, label: Text('Light')),
-                          ButtonSegment(value: ThemeMode.dark, label: Text('Dark')),
+                          ButtonSegment(
+                            value: ThemeMode.light,
+                            label: Text('Light'),
+                          ),
+                          ButtonSegment(
+                            value: ThemeMode.dark,
+                            label: Text('Dark'),
+                          ),
                         ],
                         selected: {isDark ? ThemeMode.dark : ThemeMode.light},
                         onSelectionChanged: (set) {
@@ -166,23 +197,24 @@ class SettingsPage extends StatelessWidget {
                 onTap: () {
                   showDialog(
                     context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('How to Use (English)'),
-                      content: const Text(
-                        'Welcome to the English Practice App!\n\n'
-                        '1. Select a subject and start answering questions.\n'
-                        '2. If you keep answering correctly, your combo level increases and cool effects appear!\n'
-                        '3. If you stop or answer wrong, the combo slowly drops.\n'
-                        '4. You can also explore other subjects with AI-generated questions.\n\n'
-                        'Have fun improving your English!',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx),
-                          child: const Text('OK'),
-                        )
-                      ],
-                    ),
+                    builder:
+                        (ctx) => AlertDialog(
+                          title: const Text('How to Use (English)'),
+                          content: const Text(
+                            'Welcome to the English Practice App!\n\n'
+                            '1. Select a subject and start answering questions.\n'
+                            '2. If you keep answering correctly, your combo level increases and cool effects appear!\n'
+                            '3. If you stop or answer wrong, the combo slowly drops.\n'
+                            '4. You can also explore other subjects with AI-generated questions.\n\n'
+                            'Have fun improving your English!',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
                   );
                 },
                 child: Container(
@@ -206,7 +238,10 @@ class SettingsPage extends StatelessWidget {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: SizedBox.shrink(), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
         ],
         onTap: (index) {
           if (index == 0) {
@@ -220,5 +255,3 @@ class SettingsPage extends StatelessWidget {
     );
   }
 }
-
-
