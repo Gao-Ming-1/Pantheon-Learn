@@ -297,7 +297,8 @@ class _QuizPageState extends State<QuizPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    print('home build start');
+    final widgetTree = Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
@@ -450,6 +451,8 @@ class _QuizPageState extends State<QuizPage> {
         },
       ),
     );
+    print('home build end');
+    return widgetTree;
   }
 }
 

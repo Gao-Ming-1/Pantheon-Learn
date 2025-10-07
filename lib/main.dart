@@ -6,9 +6,12 @@ import 'services/audio_service.dart';
 
 void main() {
   runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    print('main start');
     await ThemeService.init();
     await AudioService.instance.init();
     runApp(const MyApp());
+    print('runApp done');
   }, (error, stack) {
     // ignore log
   });
