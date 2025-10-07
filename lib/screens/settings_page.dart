@@ -27,34 +27,7 @@ class SettingsPage extends StatelessWidget {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
-            FutureBuilder(
-              future: AudioService.instance.init(),
-              builder: (context, snapshot) {
-                final initial =
-                    AudioService.instance.getVolumePercent().toDouble();
-                return StatefulBuilder(
-                  builder: (context, setLocal) {
-                    double value = initial;
-                    return Slider(
-                      value: value,
-                      min: 0,
-                      max: 100,
-                      divisions: 100,
-                      label: '${value.round()}%',
-                      onChanged: (v) {
-                        // snap to nearest 10 when close
-                        double snapped = v;
-                        final nearest10 = (v / 10).round() * 10;
-                        if ((v - nearest10).abs() <= 2)
-                          snapped = nearest10.toDouble();
-                        setLocal(() {});
-                        AudioService.instance.setVolumePercent(snapped.round());
-                      },
-                    );
-                  },
-                );
-              },
-            ),
+            _VolumeSlider(),
             const SizedBox(height: 16),
             const Text(
               'Word List',
@@ -271,6 +244,54 @@ class SettingsPage extends StatelessWidget {
           }
         },
       ),
+    );
+  }
+}
+
+class _VolumeSlider extends StatefulWidget {
+  @override
+  State<_VolumeSlider> createState() => _VolumeSliderState();
+}
+
+class _VolumeSliderState extends State<_VolumeSlider> {
+  double _volume = 100;
+  bool _inited = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    await AudioService.instance.init();
+    setState(() {
+      _volume = AudioService.instance.getVolumePercent().toDouble();
+      _inited = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_inited) {
+      return const SizedBox(height: 32);
+    }
+    return Slider.adaptive(
+      value: _volume,
+      min: 0,
+      max: 100,
+      divisions: 100,
+      label: '${_volume.round()}%',
+      onChanged: (v) {
+        setState(() => _volume = v);
+      },
+      onChangeEnd: (v) {
+        double snapped = v;
+        final nearest10 = (v / 10).round() * 10;
+        if ((v - nearest10).abs() <= 2) snapped = nearest10.toDouble();
+        setState(() => _volume = snapped);
+        AudioService.instance.setVolumePercent(snapped.round());
+      },
     );
   }
 }

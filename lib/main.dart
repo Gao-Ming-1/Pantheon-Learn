@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'screens/quiz_page.dart';
 import 'services/theme_service.dart';
 import 'services/audio_service.dart';
+import 'services/history_service.dart';
 
 void main() {
   runZonedGuarded(() async {
@@ -10,6 +11,7 @@ void main() {
     print('main start');
     await ThemeService.init();
     await AudioService.instance.init();
+    await HistoryService.init();
     runApp(const MyApp());
     print('runApp done');
   }, (error, stack) {
