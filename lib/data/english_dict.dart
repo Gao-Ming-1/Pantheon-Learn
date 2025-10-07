@@ -1,6 +1,7 @@
 import '../models/word_entry.dart';
 
-final List<WordEntry> englishWordDictOlevel = [
+List<WordEntry>? _englishWordDictOlevelCache;
+List<WordEntry> get englishWordDictOlevel => _englishWordDictOlevelCache ??= [
   WordEntry(
     word: 'Adjustable',
     englishMeaning: ['capable of being changed'],
@@ -1217,9 +1218,10 @@ final List<WordEntry> englishWordDictOlevel = [
     englishMeaning: ['characterised by wild and uncontrolled behaviour'],
     chineseMeaning: ['喧闹的（无法控制的）'],
   ),
-].where((entry) => entry.word.isNotEmpty).toList();
+];
 
-final List<WordEntry> englishWordDictPSLE = [
+List<WordEntry>? _englishWordDictPSLECache;
+List<WordEntry> get englishWordDictPSLE => _englishWordDictPSLECache ??= [
   WordEntry(
     word: 'Inflated',
     englishMeaning: ['Expanded, exaggerated'],
@@ -3180,7 +3182,7 @@ final List<WordEntry> englishWordDictPSLE = [
   ),
   WordEntry(
     word: 'Empathy',
-    englishMeaning: ['Understanding others’ feelings'],
+    englishMeaning: ["Understanding others' feelings"],
     chineseMeaning: ['同理心'],
   ),
   WordEntry(
@@ -3844,7 +3846,7 @@ final List<WordEntry> englishWordDictPSLE = [
   ),
   WordEntry(
     word: 'Empathy',
-    englishMeaning: ['Understanding another’s feelings'],
+    englishMeaning: ["Understanding another's feelings"],
     chineseMeaning: ['同理心；共鸣'],
   ),
   WordEntry(
@@ -4111,7 +4113,7 @@ final List<WordEntry> englishWordDictPSLE = [
   WordEntry(
     word: 'pandering to',
     englishMeaning: [
-      'to appeal to someone’s desires or prejudices, often in a way that is insincere, excessive, or done to gain favor',
+      "to appeal to someone's desires or prejudices, often in a way that is insincere, excessive, or done to gain favor",
     ],
     chineseMeaning: ['迎合某人的欲望或偏见，通常以一种不真诚、过度或为了获得好感的方式'],
   ),
@@ -6401,4 +6403,4 @@ final List<WordEntry> englishWordDictPSLE = [
     ],
     chineseMeaning: ['期待，预期'],
   ),
-].where((entry) => entry.word.isNotEmpty).toList();
+];
