@@ -1,50 +1,59 @@
 // api/chat.js
+export const config = {
+  runtime: 'edge', // Vercel Edge Function
+};
+
 export default async function handler(req) {
-  // ⚡ 添加 CORS 支持
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*', // 允许任意网页调用
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+
+  // 处理浏览器预检请求
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      },
+      headers: corsHeaders,
     });
   }
 
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
   try {
-    const body = await req.json(); // Edge Function 原生解析 JSON
+    const body = await req.json();
+
+    // 设置 15 秒超时
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`, // 从 Vercel 环境变量读取
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`, // Vercel 环境变量
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeout);
 
     const data = await response.json();
 
     return new Response(JSON.stringify(data), {
       status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // 前端可访问
-      },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    console.error(err);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 }
