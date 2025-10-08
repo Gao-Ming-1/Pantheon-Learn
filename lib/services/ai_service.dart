@@ -4,8 +4,7 @@ import '../models/mcq.dart';
 
 class AiService {
   // 按用户提供
-  static const String _apiKey = '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';
-  static const String _baseUrl = 'https://openrouter.ai/api/v1';
+  static const String _baseUrl = 'https://pantheon-learn.vercel.app/api';
   static const String _model = 'mistralai/mistral-7b-instruct:free';
 
   static const Map<String, String> subjectToExamples = {
@@ -39,19 +38,18 @@ Constraints:
   }
 
   static Future<String> _chatCompletion(String prompt) async {
-    final url = Uri.parse('$_baseUrl/chat/completions');
+    final url = Uri.parse('$_baseUrl/chat'); // 调用代理
     final body = jsonEncode({
       'model': _model,
       'messages': [
-        {'role': 'user', 'content': prompt}
-      ]
+        {'role': 'user', 'content': prompt},
+      ],
     });
 
     final res = await http.post(
       url,
       headers: {
-        'Authorization': 'Bearer $_apiKey',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', // 不再传 Authorization
       },
       body: body,
     );
@@ -95,7 +93,12 @@ Constraints:
   }
 
   static Map<String, dynamic> _parseFromPlainText(String text) {
-    final lines = text.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    final lines =
+        text
+            .split('\n')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
     String question = '';
     final options = <String>[];
     String correct = 'A';
@@ -106,13 +109,23 @@ Constraints:
         question = line.replaceAll(RegExp(r'^\d+[).]\s*'), '').trim();
         continue;
       }
-      if (RegExp(r'^A[).]').hasMatch(line)) options.add(line.substring(2).trim());
-      if (RegExp(r'^B[).]').hasMatch(line)) options.add(line.substring(2).trim());
-      if (RegExp(r'^C[).]').hasMatch(line)) options.add(line.substring(2).trim());
-      if (RegExp(r'^D[).]').hasMatch(line)) options.add(line.substring(2).trim());
-      final m = RegExp(r'Correct\s*[:\-]\s*([ABCD])', caseSensitive: false).firstMatch(line);
+      if (RegExp(r'^A[).]').hasMatch(line))
+        options.add(line.substring(2).trim());
+      if (RegExp(r'^B[).]').hasMatch(line))
+        options.add(line.substring(2).trim());
+      if (RegExp(r'^C[).]').hasMatch(line))
+        options.add(line.substring(2).trim());
+      if (RegExp(r'^D[).]').hasMatch(line))
+        options.add(line.substring(2).trim());
+      final m = RegExp(
+        r'Correct\s*[:\-]\s*([ABCD])',
+        caseSensitive: false,
+      ).firstMatch(line);
       if (m != null) correct = m.group(1)!.toUpperCase();
-      final ex = RegExp(r'Explanation\s*[:\-]\s*(.*)', caseSensitive: false).firstMatch(line);
+      final ex = RegExp(
+        r'Explanation\s*[:\-]\s*(.*)',
+        caseSensitive: false,
+      ).firstMatch(line);
       if (ex != null) explanation = ex.group(1)!.trim();
     }
 
@@ -124,9 +137,10 @@ Constraints:
       'question': question.isEmpty ? 'Generated question' : question,
       'options': options.take(4).toList(),
       'correct': correct,
-      'explanation': explanation.isEmpty ? 'Refer to core concept of the syllabus.' : explanation,
+      'explanation':
+          explanation.isEmpty
+              ? 'Refer to core concept of the syllabus.'
+              : explanation,
     };
   }
 }
-
-
