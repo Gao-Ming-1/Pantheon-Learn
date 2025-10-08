@@ -1,16 +1,16 @@
-# mcq_creator
+# 🧠 Pantheon-Learn
 
-A new Flutter project.
+Pantheon-Learn is an AI-powered O-Level MCQ generator built with **Flutter** and deployed using **Vercel**.  
+It supports subject-based question generation, using **OpenRouter** AI models to create realistic multiple-choice questions.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Features
 
-A few resources to get you started if this is your first Flutter project:
+- 🧩 Auto-generates O-Level style MCQs for various subjects (Chemistry, Physics, Biology, etc.)
+- 🤖 Uses [OpenRouter](https://openrouter.ai/) API for question generation
+- 🌐 Frontend built with **Flutter Web**
+- ☁️ Deployed to [Vercel](https://vercel.com/) with serverless API integration
+- 🛡️ Environment variables to protect API keys
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
