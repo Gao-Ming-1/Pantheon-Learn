@@ -8,6 +8,7 @@ import '../data/english_dict.dart';
 import '../services/history_service.dart';
 import '../services/tts_service.dart';
 import 'settings_page.dart';
+import 'assistant_chat_page.dart';
 import '../widgets/combo.dart';
 
 class QuizPage extends StatefulWidget {
@@ -304,6 +305,17 @@ class _QuizPageState extends State<QuizPage> {
           children: [
             const Text('Pantheon Learn'),
             const Spacer(),
+            // Center area AI Assistant toggle
+            FilledButton.tonalIcon(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AssistantChatPage()),
+                );
+              },
+              icon: const Icon(Icons.smart_toy_outlined),
+              label: const Text('AI Assistant'),
+            ),
+            const SizedBox(width: 12),
             Image.asset('images/LOGO.png', height: 28),
           ],
         ),
