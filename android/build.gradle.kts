@@ -1,10 +1,10 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        // 与 settings.gradle.kts 中的插件版本保持一致
         classpath("com.android.tools.build:gradle:8.7.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.22")
     }
@@ -17,6 +17,7 @@ allprojects {
     }
 }
 
+// 统一 build 目录到上级，避免 Gradle 冲突
 val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
 rootProject.layout.buildDirectory.value(newBuildDir)
 
