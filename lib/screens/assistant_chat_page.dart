@@ -61,7 +61,9 @@ class _AssistantChatPageState extends State<AssistantChatPage> {
       ),
       drawer: Drawer(
         child: SafeArea(
-          child: Column(
+          child: SizedBox(
+            width: 240, // narrower drawer for better use of space
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListTile(
@@ -103,6 +105,7 @@ class _AssistantChatPageState extends State<AssistantChatPage> {
               )
             ],
           ),
+        ),
         ),
       ),
       body: Column(
@@ -159,7 +162,7 @@ class _AssistantChatPageState extends State<AssistantChatPage> {
                       minLines: 1,
                       maxLines: 5,
                       decoration: const InputDecoration(
-                        hintText: 'Ask a learning-related question...',
+                        hintText: 'Ask a question...',
                         border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
                         isDense: true,
                       ),

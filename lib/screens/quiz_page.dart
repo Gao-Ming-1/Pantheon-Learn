@@ -303,20 +303,23 @@ class _QuizPageState extends State<QuizPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            const Text('Pantheon Learn'),
+            // Use LOGO as title at the left
+            Image.asset('images/LOGO.png', height: 28),
             const Spacer(),
-            // Center area AI Assistant toggle
+            // Smaller AI Assistant button aligned to the right
             FilledButton.tonalIcon(
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                visualDensity: VisualDensity.compact,
+              ),
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const AssistantChatPage()),
                 );
               },
-              icon: const Icon(Icons.smart_toy_outlined),
+              icon: const Icon(Icons.smart_toy_outlined, size: 18),
               label: const Text('AI Assistant'),
             ),
-            const SizedBox(width: 12),
-            Image.asset('images/LOGO.png', height: 28),
           ],
         ),
       ),

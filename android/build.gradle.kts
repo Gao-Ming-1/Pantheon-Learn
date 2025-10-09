@@ -18,8 +18,8 @@ allprojects {
 }
 
 // 统一 build 目录到上级，避免 Gradle 冲突
-val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
-rootProject.layout.buildDirectory.value(newBuildDir)
+// val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
+// rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
