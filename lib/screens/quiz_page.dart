@@ -10,6 +10,7 @@ import '../services/tts_service.dart';
 import 'settings_page.dart';
 import 'assistant_chat_page.dart';
 import '../widgets/combo.dart';
+import 'daily_quest_page.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
@@ -448,7 +449,7 @@ class _QuizPageState extends State<QuizPage> {
         currentIndex: 0,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: SizedBox.shrink(), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.star_border), label: 'Quest'),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Settings',
@@ -458,6 +459,10 @@ class _QuizPageState extends State<QuizPage> {
           if (index == 0) {
             // Home：回到主界面（当前页），可选择滚动到顶部或刷新
             // 这里什么都不做即可保持当前主页
+          } else if (index == 1) {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const DailyQuestPage()));
           } else if (index == 2) {
             Navigator.of(
               context,

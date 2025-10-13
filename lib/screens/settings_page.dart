@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mcq_creator/screens/daily_quest_page.dart';
 import 'quiz_page.dart';
 import '../services/theme_service.dart';
 import 'history_page.dart';
@@ -229,7 +230,10 @@ class SettingsPage extends StatelessWidget {
         currentIndex: 2,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: SizedBox.shrink(), label: ''),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.star_border),
+            label: 'Quest',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Settings',
@@ -241,6 +245,10 @@ class SettingsPage extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const QuizPage()),
               (route) => false,
             );
+          } else if (index == 1) {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const DailyQuestPage()));
           }
         },
       ),
