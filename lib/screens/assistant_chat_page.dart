@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mcq_creator/screens/daily_quest_page.dart';
 import '../services/assistant_service.dart';
 import 'quiz_page.dart';
 import 'settings_page.dart';
@@ -207,17 +206,11 @@ class _AssistantChatPageState extends State<AssistantChatPage> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
+        currentIndex: 1,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star_border),
-            label: 'Quest',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.smart_toy_outlined), label: 'Assistant'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],
         onTap: (index) {
           if (index == 0) {
@@ -226,13 +219,9 @@ class _AssistantChatPageState extends State<AssistantChatPage> {
               (route) => false,
             );
           } else if (index == 2) {
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const SettingsPage()));
-          } else if (index == 1) {
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const DailyQuestPage()));
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SettingsPage()),
+            );
           }
         },
       ),

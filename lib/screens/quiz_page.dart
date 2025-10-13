@@ -10,7 +10,6 @@ import '../services/tts_service.dart';
 import 'settings_page.dart';
 import 'assistant_chat_page.dart';
 import '../widgets/combo.dart';
-import 'daily_quest_page.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
@@ -304,23 +303,8 @@ class _QuizPageState extends State<QuizPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            // Use LOGO as title at the left
             Image.asset('images/LOGO.png', height: 28),
             const Spacer(),
-            // Smaller AI Assistant button aligned to the right
-            FilledButton.tonalIcon(
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                visualDensity: VisualDensity.compact,
-              ),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AssistantChatPage()),
-                );
-              },
-              icon: const Icon(Icons.smart_toy_outlined, size: 18),
-              label: const Text('AI Assistant'),
-            ),
           ],
         ),
       ),
@@ -449,7 +433,7 @@ class _QuizPageState extends State<QuizPage> {
         currentIndex: 0,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.star_border), label: 'Quest'),
+          BottomNavigationBarItem(icon: Icon(Icons.smart_toy_outlined), label: 'Assistant'),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Settings',
@@ -457,12 +441,11 @@ class _QuizPageState extends State<QuizPage> {
         ],
         onTap: (index) {
           if (index == 0) {
-            // Home：回到主界面（当前页），可选择滚动到顶部或刷新
-            // 这里什么都不做即可保持当前主页
+            // Home：回到主界面（当前页）
           } else if (index == 1) {
             Navigator.of(
               context,
-            ).push(MaterialPageRoute(builder: (_) => const DailyQuestPage()));
+            ).push(MaterialPageRoute(builder: (_) => const AssistantChatPage()));
           } else if (index == 2) {
             Navigator.of(
               context,

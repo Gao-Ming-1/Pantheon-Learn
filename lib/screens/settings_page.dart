@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mcq_creator/screens/daily_quest_page.dart';
+import 'assistant_chat_page.dart';
 import 'quiz_page.dart';
 import '../services/theme_service.dart';
 import 'history_page.dart';
@@ -230,14 +230,8 @@ class SettingsPage extends StatelessWidget {
         currentIndex: 2,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star_border),
-            label: 'Quest',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.smart_toy_outlined), label: 'Assistant'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],
         onTap: (index) {
           if (index == 0) {
@@ -246,9 +240,9 @@ class SettingsPage extends StatelessWidget {
               (route) => false,
             );
           } else if (index == 1) {
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const DailyQuestPage()));
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const AssistantChatPage()),
+            );
           }
         },
       ),
