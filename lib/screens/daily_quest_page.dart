@@ -19,6 +19,16 @@ class _DailyQuestPageState extends State<DailyQuestPage> with SingleTickerProvid
   void initState() {
     super.initState();
     _expAnim = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    _init();
+    // listen changes
+    ProgressService.instance.changeTick.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  Future<void> _init() async {
+    await ProgressService.instance.init();
+    if (mounted) setState(() {});
   }
 
   @override
@@ -67,12 +77,15 @@ class _DailyQuestPageState extends State<DailyQuestPage> with SingleTickerProvid
     final progress = ((exp - base) / (nextThreshold - base)).clamp(0.0, 1.0);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Daily Quest')),
+      // remove top app bar to appear as standalone page
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 8),
+            Text('Daily Quest', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 12),
             // Rank + EXP Progress
             Card(
               elevation: 1,
@@ -148,11 +161,21 @@ class _DailyQuestPageState extends State<DailyQuestPage> with SingleTickerProvid
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(md.name, style: Theme.of(context).textTheme.bodyLarge),
+                      Text(
+                        md.name,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: md.unlocked ? Colors.orange : Colors.grey,
+                            ),
+                      ),
                       const SizedBox(height: 4),
-                      Text(md.description, style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        md.description,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: md.unlocked ? null : Colors.grey,
+                            ),
+                      ),
                       const SizedBox(height: 6),
-                      Icon(md.unlocked ? Icons.emoji_events : Icons.lock_outline, color: md.unlocked ? Colors.orange : null),
+                      Icon(md.unlocked ? Icons.emoji_events : Icons.lock_outline, color: md.unlocked ? Colors.orange : Colors.grey),
                     ],
                   ),
                 );

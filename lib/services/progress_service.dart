@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Mission {
@@ -66,6 +67,7 @@ class ProgressService {
   static const String _kMissions = 'progress_missions_v1';
   static const String _kMedals = 'progress_medals_v1';
   static const String _kStats = 'progress_stats_v1';
+  static const String _kDailyDate = 'progress_daily_date_v1';
 
   int totalExp = 0;
   List<Mission> todaysMissions = <Mission>[];
@@ -77,6 +79,9 @@ class ProgressService {
   int wrong = 0;
   int totalChats = 0;
   Map<String, Map<String, int>> perSubject = <String, Map<String, int>>{}; // subject => {total, correct, wrong}
+  int currentStreak = 0;
+  // UI update hook
+  final ValueNotifier<int> changeTick = ValueNotifier<int>(0);
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -90,7 +95,15 @@ class ProgressService {
         todaysMissions = list.map((e) => Mission.fromJson(e as Map<String, dynamic>)).toList();
       } catch (_) {}
     }
-    if (todaysMissions.isEmpty) _resetDailyMissions();
+    // Daily reset by date
+    final last = prefs.getString(_kDailyDate);
+    final today = DateTime.now();
+    final todayKey = '${today.year}-${today.month}-${today.day}';
+    if (todaysMissions.isEmpty || last != todayKey) {
+      _resetDailyMissions();
+      await prefs.setString(_kDailyDate, todayKey);
+    }
+    _notify();
 
     // Medals
     final mdRaw = prefs.getString(_kMedals);
@@ -121,20 +134,20 @@ class ProgressService {
 
   void _resetDailyMissions() {
     todaysMissions = [
-      Mission(id: 'm1', title: 'Answer 20 English questions', rewardExp: 200, target: 20),
+      Mission(id: 'm1', title: 'Answer 20 questions today', rewardExp: 200, target: 20),
       Mission(id: 'm2', title: 'Chat with AI Assistant 3 times', rewardExp: 100, target: 3),
-      Mission(id: 'm3', title: 'Study for 30 minutes', rewardExp: 150, target: 30),
+      Mission(id: 'm3', title: 'Achieve 80% accuracy today', rewardExp: 150, target: 80),
     ];
     _persistMissions();
   }
 
   void _initDefaultMedals() {
     medals = [
-      Medal(id: 'medal_start', name: '🏅 Getting Started', description: 'Complete your first mission'),
-      Medal(id: 'medal_combo', name: '🔥 Combo Master', description: 'Reach 10 SSS combos'),
-      Medal(id: 'medal_chat', name: '💬 Chatterbox', description: 'Chat with AI Assistant 50 times'),
-      Medal(id: 'medal_learner', name: '🎓 Diligent Learner', description: 'Answer 100 questions'),
-      Medal(id: 'medal_perfect', name: '💎 Perfectionist', description: 'Achieve accuracy above 90%'),
+      Medal(id: 'medal_started', name: '🏅 Getting Started', description: 'Answer your first question'),
+      Medal(id: 'medal_combo10', name: '🔥 Combo Master', description: 'Reach 10 consecutive correct answers'),
+      Medal(id: 'medal_chat10', name: '💬 Friendly Learner', description: 'Chat with AI Assistant 10 times'),
+      Medal(id: 'medal_learner100', name: '🎓 Diligent Learner', description: 'Answer 100 questions'),
+      Medal(id: 'medal_acc90', name: '💎 Accuracy Pro', description: 'Reach 90% accuracy overall'),
     ];
     _persistMedals();
   }
@@ -152,21 +165,22 @@ class ProgressService {
       await _persistExp();
       _persistMissions();
       _checkMedalsAfterClaim();
+      _notify();
     }
   }
 
   void _checkMedalsAfterClaim() {
-    // Getting Started: any completed mission
-    if (todaysMissions.any((m) => m.completed)) {
-      _unlock('medal_start');
-    }
-    // Diligent Learner: Answer 100 questions
-    if (totalQuestions >= 100) _unlock('medal_learner');
-    // Chatterbox: 50 chats
-    if (totalChats >= 50) _unlock('medal_chat');
-    // Perfectionist: accuracy > 90%
+    // Getting Started: first question
+    if (totalQuestions >= 1) _unlock('medal_started');
+    // Diligent Learner: 100 questions
+    if (totalQuestions >= 100) _unlock('medal_learner100');
+    // Friendly Learner: 10 chats
+    if (totalChats >= 10) _unlock('medal_chat10');
+    // Accuracy Pro: accuracy >= 90%
     final acc = totalQuestions == 0 ? 0 : (correct * 100.0 / totalQuestions);
-    if (acc >= 90) _unlock('medal_perfect');
+    if (acc >= 90) _unlock('medal_acc90');
+    // Combo Master: 10 streak
+    if (currentStreak >= 10) _unlock('medal_combo10');
     _persistMedals();
   }
 
@@ -207,16 +221,28 @@ class ProgressService {
   // Helpers: call at appropriate places in app
   Future<void> recordAnswer({required String subject, required bool isCorrect}) async {
     totalQuestions++;
-    if (isCorrect) correct++; else wrong++;
+    if (isCorrect) {
+      correct++;
+      currentStreak++;
+    } else {
+      wrong++;
+      currentStreak = 0;
+    }
     perSubject.putIfAbsent(subject, () => {'total': 0, 'correct': 0, 'wrong': 0});
     perSubject[subject]!['total'] = (perSubject[subject]!['total'] ?? 0) + 1;
     perSubject[subject]![isCorrect ? 'correct' : 'wrong'] = (perSubject[subject]![isCorrect ? 'correct' : 'wrong'] ?? 0) + 1;
     // Mission hooks
-    if (subject.contains('English')) {
-      final m = todaysMissions.where((e) => e.id == 'm1').firstOrNull;
-      if (m != null && !m.completed) { m.progress = (m.progress + 1).clamp(0, m.target); _persistMissions(); }
-    }
+    // m1: Answer 20 questions today
+    final m1 = todaysMissions.where((e) => e.id == 'm1').firstOrNull;
+    if (m1 != null && !m1.completed) { m1.progress = (m1.progress + 1).clamp(0, m1.target); }
+    // m3: Achieve 80% accuracy today -> use overall accuracy snapshot for simplicity
+    final acc = totalQuestions == 0 ? 0 : (correct * 100.0 / totalQuestions).round();
+    final m3 = todaysMissions.where((e) => e.id == 'm3').firstOrNull;
+    if (m3 != null && !m3.completed) { m3.progress = acc.clamp(0, m3.target); m3.completed = m3.progress >= m3.target; }
+    _persistMissions();
     await persistStats();
+    _checkMedalsAfterClaim();
+    _notify();
   }
 
   Future<void> recordChat() async {
@@ -224,6 +250,11 @@ class ProgressService {
     final m = todaysMissions.where((e) => e.id == 'm2').firstOrNull;
     if (m != null && !m.completed) { m.progress = (m.progress + 1).clamp(0, m.target); _persistMissions(); }
     await persistStats();
+    _notify();
+  }
+
+  void _notify() {
+    changeTick.value++;
   }
 }
 
