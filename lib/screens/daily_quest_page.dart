@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mcq_creator/screens/quiz_page.dart';
+import 'package:mcq_creator/screens/settings_page.dart';
 import '../services/progress_service.dart';
 
 class DailyQuestPage extends StatefulWidget {
@@ -163,6 +165,36 @@ class _DailyQuestPageState extends State<DailyQuestPage> with SingleTickerProvid
             _StatsPanel(),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 1,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.star_border),
+            label: 'Quest',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const QuizPage()),
+              (route) => false,
+            );
+          } else if (index == 2) {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const SettingsPage()));
+          } else if (index == 1) {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const DailyQuestPage()));
+          }
+        },
       ),
     );
   }
